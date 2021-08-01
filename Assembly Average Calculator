@@ -1,0 +1,65 @@
+;////////////////////////////////////////////////////////////
+// 10 numbers (8-bit) will be taken from p1 and the average of these numbers will be saved to 
+// the address of 90h. The acquisition of the numbers will be carried out by means of a button and 
+// when the button is pressed, the current p1 value will be accepted as a number. For example; If 
+// p1-> 00001000b, the received number will be 08h.
+// After calculating the average, the program will continue to get 10 numbers again and the 
+// average of the new numbers will be placed in 91h and so on. When the calculations of averages 
+// are done, the average of these 5 numbers saved from 90h to 94h will be calculated and saved in 
+// address of 95h. Later on, the program will be terminated.
+;////////////////////////////////////////////////////////////
+
+ORG 00H	
+SJMP BASLA
+
+BASLA: 				
+					CLR P2.0					; The P2.0 pin, which we press to get the information, is set to 1 by default. It is necessary to reset it at first.
+					AL  EQU P2.0				;Put "AL" label on P2.0 pin.
+					MOV 21H,#05D 				  ; 
+					MOV R1,#090H					; 
+	SIRADAKIONLU:	ACALL BILGILERIALMA  	  	  ;Calls the function with information input 10 times.
+					ACALL ORTALAMAHESAPLAMA		  ;A function that averages the information that get.
+					DJNZ 21H,SIRADAKIONLU			;It makes 5 times to take the information and print the averages to the required places.
+					
+					ACALL ORTALAMALARINORTALAMASI  ;Function that takes the average of 5 averages written between 90H-94H and prints it to 95h
+          
+					SJMP BITIR					
+
+
+BILGILERIALMA:	MOV 70H,#10D   		;10 tane bilgi girisi oldugu icin bos bir adrese 10D atadim.
+				MOV R0,#30H			;10 tane bilgiyi 30H-3AH arasi yazdiriyorum.
+				
+	DEVAM:		JNB AL,$     	 	;P2.0 pini yani AL'a basilmadigi surece P1 portundan deger alinmaz.
+				CLR AL				; Sürekli bilgi girisi olmasin diye hemen sifirliyoruz.
+				MOV A,P1   			;P1'den gelen bilgiyi ACC'ye aktarma.
+				MOV @R0,A  			;Gelen bilgileri 30h'tan itibaren yazdirmak.
+				INC R0     			;R0 her seferinde artsin ki gelen bilgileri sirayla yazdirayim.
+				DJNZ 70H,DEVAM 		;10 kere bilgi alma dongusu.
+				RET
+
+ORTALAMAHESAPLAMA:		MOV R0,#30H
+						MOV A,#0H          ;A'yi sifirlamak gerekiyor cunku bütün degerleri önce A'da toplayip sonra ortalamasini alacagim
+			
+			TOPLA:		ADD A,@R0
+						INC R0
+						CJNE R0,#3AH,TOPLA 	; 3AH'a kadar (10 tane) veriyi ACC'ye topla.		
+						MOV B,#10D			; Ortalama için paydamiz, yani N=10.
+						DIV AB 				 ; Ortalamayi bulduk ACC'ye yaz.
+						MOV @R1,A 			;Ortalamalari 90htan itibaren yazdir.
+						INC R1				;R1'i arttir ki bir daha ortalama aldiginda 90+n'inci adrese yazsin.
+						RET
+
+ORTALAMALARINORTALAMASI:	MOV R0,#090H
+							MOV A,#0
+			
+			TOPLA2:			ADD A,@R0
+							INC R0
+							CJNE R0,#095H,TOPLA2   ;90H-94h arasi degerleri (5 TANE) ACC'ye topla
+							MOV B,#05D             ; N=5 , ortalama icin paydamiz=5
+							DIV AB					; 90H-94h arasi ortalamayi hesapla, ACC'ye yaz	
+							MOV @R0,A				;Ortalamalarin ortalamasini 95h'a yazdirma
+							RET
+
+
+BITIR: NOP
+END
