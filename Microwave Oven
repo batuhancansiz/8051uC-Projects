@@ -12,13 +12,13 @@
 #define START  P0_7
 
 
-#define ARTIBES P1_0
-#define EKSIBES P1_1
-#define MOD2 P1_2
-#define MOD3 P1_3
-#define MOD4 P1_4
-#define MOD5 P1_5
-#define MOD6 P1_6
+#define PLUSFIVE P1_0
+#define MINUSFIVE P1_1
+#define MODE2 P1_2
+#define MODE3 P1_3
+#define MODE4 P1_4
+#define MODE5 P1_5
+#define MODE6 P1_6
 
 
 
@@ -26,7 +26,7 @@ void delay(int);
 void yazdir(unsigned char x);
 
 unsigned char sure=0;
-unsigned char saydir;  //saydir'i time Kesmesi gelince kullanacagiz.
+unsigned char saydir;  // saydir will be executed when interrupt 1 comes.
 		
 void delay(int k)
 {
@@ -40,7 +40,7 @@ void delay(int k)
 
 void modsecim()
 {
-		if(MOD6==0)    				//Mod6 seçimi
+		if(MODE6==0)    				//Choosing mode6
 			{
 			LED1=1;
 			LED2=1;
@@ -50,7 +50,7 @@ void modsecim()
 			LED6=1;
 			}
 			
-		else if(MOD5==0)   	//Mod 5 seçimi
+		else if(MODE5==0)   	//Choosing mode5
 			{
 			LED1=1;
 			LED2=1;
@@ -59,7 +59,7 @@ void modsecim()
 			LED5=1;
 			}
 		
-		else if(MOD4==0)    //Mod4 seçimi
+		else if(MODE4==0)    //Choosing mode4
 			{
 			LED1=1;
 			LED2=1;
@@ -67,21 +67,21 @@ void modsecim()
 			LED4=1;
 			}
 			
-		else if(MOD3==0)    //Mod3 seçimi
+		else if(MODE3==0)    //Choosing mode3
 			{
 			LED1=1;
 			LED2=1;
 			LED3=1;
 			}
 			
-		else	if(MOD2==0)		//Mod2 seçimi
+		else	if(MODE2==0)		//Choosing mode2
 			{
 			LED1=1;
 			LED2=1;
 			}
 			
 			else
-				LED1=1;					//Hiçbir mod seçilmediyse Mikrodalga acilista en düsük güce ayarlanir.
+				LED1=1;					//If no mode is selected, the microwave is set to the lowest power by default.
 			
 			return;		
 }
@@ -97,8 +97,8 @@ void surebitti() interrupt 1
 {
 	TR0=0; 			
 	saydir++;
-	TH0=0xC3;			//50ms için yükleme degeri
-	TL0=0x50;			//50ms için yükleme degeri
+	TH0=0xC3;			//50ms value 
+	TL0=0x50;			//
 
 	if(saydir==sure*20)     // Sure kadar zaman gecmisse
 	{
@@ -135,7 +135,7 @@ void surebitti() interrupt 1
 			yazdir('M');
 			
 	}
-	else									//sure kadar saymadiysa tekrar 50ms'lik kesme bekle
+	else									//wait for 50ms interrupt again if time has not counted
 	{
 		goto cik;
 	}
@@ -165,36 +165,36 @@ void main()
 {
 	TMOD=0x90;   // Timer-1 Mod2 (baud rate için) ------  Timer-0, Mod-1 16bit (zamanlayici için)
 	
-	SCON=0x40;		// ; MOD-1 8bit UART degisken baud rate seçimi.
+	SCON=0x40;		// ; MOD-1 8bit UART controllable baud rate.
 	TH1=0xFF;			// 9600 baud rate for 11.0592MHz
 	TL1=0xFD;			// 9600 baud rate for 11.0592MHz
 	TR1=1;
 	
-	TH0=0xC3;			//50ms için yükleme degeri
-	TL0=0x50;			//50ms için yükleme degeri
-	TR0=1;				//Zamanlayici 0 baslasin
+	TH0=0xC3;			//
+	TL0=0x50;			//
+	TR0=1;				//Let timer-0 start.
 	
-	ET0=1;      // Zamanlayici 0 kesme yetkilendirme biti
-	EA=1;				//Genel kesme yetkilendirme biti
+	ET0=1;      // Timer-0 intterrupt permission
+	EA=1;				//Interrupt permission for all intterrupts.
 
-	BUZZER=0;   //Buzzeri susturma.
+	BUZZER=0;   //Set buzzer logic 0 initially
 	
-	suresecme:					//Sürekli Starta basildi mi kontrol ediyoruz. Baslangicta bütün port girisleri FF oldugu için, butona basmak = bitin 0 olmasi.
+	suresecme:					//Check the start button push.
 	
-		if(START==1)			 // baslatmaya basilmadi	
+		if(START==1)			 // 	
 		{
-				if(ARTIBES==0)    //sureyi 5 saniye arttirma
+				if(PLUSFIVE==0)    //increase the duration by 5 seconds
 						sure=sure+5;
 
-				else if(EKSIBES==0)    //sureyi 5 saniye azaltma
+				else if(MINUSFIVE==0)    //decrease the duration by 5 seconds
 						{
-									if (sure==0)      //sure 0'da azaltilmak istenirse yine 0 olarak ayarlanacak.
+									if (sure==0)      //If the time is desired to be reduced at 0, it will be set to 0 again.
 											sure=0;
 									else
 											sure=sure-5;
 						}
 				else 
-					goto suresecme;        // Süre arttirma veya azaltmaya basilmadiysa suresecme etiketine dallan ve yapilanlari tekrarla.
+					goto suresecme;        // Do it again
 					 
 		}
 		
@@ -204,7 +204,7 @@ void main()
 		}
 	
 		suresectinmodsec:		
-		modsecim();   		//MOD SECMEYE GONDERILDI
+		modsecim();   		//Sent to mode choosing.
 		
 		P2=0x01; //0001
     delay(1000);
