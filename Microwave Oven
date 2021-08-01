@@ -182,7 +182,7 @@ void surebitti() interrupt 1
 
 void main()
 {
-	TMOD=0x90;   // Timer-1 Mod2 (baud rate için) ------  Timer-0, Mod-1 16bit (zamanlayici için)
+	TMOD=0x90;   // Timer-1 Mod2 for baud rate ------  Timer-0, Mod-1 16bit for timer
 	
 	SCON=0x40;		// ; MOD-1 8bit UART controllable baud rate.
 	TH1=0xFF;			// 9600 baud rate for 11.0592MHz
@@ -217,7 +217,7 @@ void main()
 					 
 		}
 		
-		else if(START==1)  //Baslatmaya basildi
+		else if(START==1)  //Starting
 		{
 			goto suresectinmodsec;
 		}
