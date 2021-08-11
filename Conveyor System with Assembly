@@ -1,7 +1,7 @@
 //  Bant hızı sabit olan bir konveyör sisteminde geçen kutular uzunluklarına(geçiş süresi) göre sınıflandırılmaktadır.
 //  Kutu boyu 50ms ve altı A sınıfı (P2.0 üzerinden bir adet darbe üretilecektir), 
 //  Kutu boyu 50ms üzeri ise B sınıfıdır(P2.1 üzerinden bir adet darbe üretilecektir).
-//  Gerekli assembly programını kesme ISR kullanarak gerçekleştiriniz.
+//  Gerekli assembly programını EXT1 ISR kullanarak gerçekleştiriniz.
 
 
 ORG		0000H
