@@ -1,0 +1,30 @@
+/*
+This code removes 10 datas beginning 0x20H to 0x30H.
+*/
+
+org 0000h
+		
+mov r0,#20h
+mov a,#01h
+MOV R1,#0AH
+		WRITE:
+		mov @r0,a
+		INC A
+		inc r0
+		DJNZ R1,WRITE
+		
+	mov r0,#20h 
+	mov r1,#30h 
+	MOV B,#10H
+	
+	go:
+	
+	mov a,@r0 
+	mov @r1,a 
+	
+	INC r0 
+	INC r1 
+	djnz b , go
+	
+	
+	END
